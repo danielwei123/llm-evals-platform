@@ -1,24 +1,34 @@
 # Architecture
 
-## Goals
-- **Founder-ready**: ship fast, but keep production hygiene.
-- **Observable by default**: traces/metrics/logs are first-class.
-- **Measurable quality**: eval harness + regression tests.
+## Repo layout
 
-## Components
-- **frontend/**: Next.js (TypeScript)
-- **backend/**: FastAPI (Python)
-- **infra/**: docker-compose, DBs, local observability
+- `backend/` — FastAPI service + Alembic migrations
+- `frontend/` — Next.js UI
+- `infra/` — local infrastructure (docker-compose)
+- `docs/` — design docs & diagrams
 
-## Data flow
-1) User interacts with Next.js UI
-2) UI calls FastAPI API
-3) API runs RAG + (optional) agent tools
-4) Jobs run async via queue/worker
-5) All actions traced via OpenTelemetry
+## Runtime components
 
-## Planned storage
-- Postgres: users, projects, runs, tool audit logs
-- Redis: cache + job queue
-- Vector DB: embeddings + chunks (pluggable)
+```mermaid
+flowchart LR
+  U[User/Developer] --> FE[Next.js (frontend)]
+  FE --> API[FastAPI (backend)]
+  API --> PG[(Postgres)]
 
+  subgraph Local Dev
+    FE
+    API
+    PG
+  end
+```
+
+## Data layer
+
+- Postgres is the system of record.
+- Alembic manages schema migrations.
+
+Planned core entities:
+- prompts (registry + versions)
+- runs (per execution)
+- spans/traces (observability)
+- eval datasets + results

@@ -1,0 +1,10 @@
+flowchart LR
+  U[User/Developer] --> FE[Next.js (frontend)]
+  FE --> API[FastAPI (backend)]
+  API --> PG[(Postgres)]
+
+  subgraph Local Dev
+    FE
+    API
+    PG
+  end

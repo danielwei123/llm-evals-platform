@@ -56,6 +56,35 @@ flowchart LR
   API --> OTel[OpenTelemetry]
 ```
 
-## Getting started
+## Getting started (local dev)
 
-Scaffold coming next (FastAPI + Next.js + docker-compose).
+### Prereqs
+- Docker Desktop (or compatible)
+- Python 3.11+
+- Node 18+
+
+### Start Postgres + backend
+
+```bash
+cp .env.example .env
+cd infra
+docker compose up --build
+```
+
+Backend health:
+- http://localhost:8000/health
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+UI:
+- http://localhost:3000
+
+## Docs
+
+- `docs/ARCHITECTURE.md`
