@@ -27,8 +27,32 @@ flowchart LR
 - Postgres is the system of record.
 - Alembic manages schema migrations.
 
-Planned core entities:
-- prompts (registry + versions)
+### Prompt Registry (v0)
+
+We store immutable prompt *versions* under a stable prompt identity:
+
+```mermaid
+erDiagram
+  prompts {
+    uuid id PK
+    string name "unique"
+    text description
+    timestamptz created_at
+  }
+
+  prompt_versions {
+    uuid id PK
+    uuid prompt_id FK
+    int version "(prompt_id, version) unique"
+    text content
+    jsonb parameters
+    timestamptz created_at
+  }
+
+  prompts ||--o{ prompt_versions : has
+```
+
+Planned next entities:
 - runs (per execution)
 - spans/traces (observability)
 - eval datasets + results

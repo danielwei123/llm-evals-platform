@@ -66,13 +66,39 @@ flowchart LR
 ### Start Postgres + backend
 
 ```bash
-cp .env.example .env
 cd infra
 docker compose up --build
 ```
 
-Backend health:
-- http://localhost:8000/health
+Backend:
+- Health: http://localhost:8000/health
+- API docs (Swagger): http://localhost:8000/docs
+
+### Run DB migrations
+
+In another terminal:
+
+```bash
+cd backend
+export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
+alembic upgrade head
+```
+
+### Prompt Registry API (v0)
+
+Create a prompt:
+
+```bash
+curl -sS -X POST 'http://localhost:8000/api/prompts' \
+  -H 'content-type: application/json' \
+  -d '{"name":"support_reply","description":"Tone + structure for support","content":"You are helpful...","parameters":{"temperature":0.2}}' | jq
+```
+
+List prompts:
+
+```bash
+curl -sS 'http://localhost:8000/api/prompts' | jq
+```
 
 ### Frontend
 
@@ -84,6 +110,7 @@ npm run dev
 
 UI:
 - http://localhost:3000
+- Prompt Registry list: http://localhost:3000/prompts
 
 ## Docs
 
