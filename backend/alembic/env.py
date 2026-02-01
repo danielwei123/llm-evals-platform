@@ -13,9 +13,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# NOTE: We intentionally keep metadata empty for now.
-# When we add SQLAlchemy models, import Base.metadata here.
-target_metadata = None
+from app.models import Base  # noqa: E402
+
+# SQLAlchemy metadata for autogenerate
+target_metadata = Base.metadata
 
 
 def get_database_url() -> str:

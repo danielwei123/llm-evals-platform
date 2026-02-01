@@ -20,10 +20,18 @@ Health:
 
 This repo uses Alembic.
 
+Apply migrations:
+
 ```bash
 cd backend
 export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
-
-alembic revision -m "init" --empty
 alembic upgrade head
+```
+
+Create a new migration:
+
+```bash
+cd backend
+export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
+alembic revision -m "add thing" --autogenerate
 ```
