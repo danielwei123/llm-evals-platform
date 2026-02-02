@@ -37,7 +37,10 @@ export default async function PromptsPage() {
   return (
     <main style={{ fontFamily: 'system-ui', padding: 24 }}>
       <h1>Prompt Registry</h1>
-      <p>Minimal v0 list view. (Create/edit UI next.)</p>
+      <p>Minimal v0 list view.</p>
+      <p>
+        <a href="/prompts/new">Create a new prompt</a>
+      </p>
 
       {prompts.length === 0 ? (
         <p>No prompts yet. Use the API to create one.</p>

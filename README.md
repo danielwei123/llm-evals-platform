@@ -111,6 +111,7 @@ npm run dev
 UI:
 - http://localhost:3000
 - Prompt Registry list: http://localhost:3000/prompts
+- Create prompt (v0): http://localhost:3000/prompts/new
 
 ## Docs
 
