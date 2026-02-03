@@ -76,12 +76,19 @@ Backend:
 
 ### Run DB migrations
 
-In another terminal:
+Option A — run Alembic locally (uses your python env):
 
 ```bash
 cd backend
 export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
 alembic upgrade head
+```
+
+Option B — run migrations via docker-compose (recommended for consistency):
+
+```bash
+cd infra
+docker compose --profile tools run --rm migrate
 ```
 
 ### Prompt Registry API (v0)
