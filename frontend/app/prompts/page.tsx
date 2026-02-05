@@ -15,9 +15,7 @@ type Prompt = {
   latest_version?: PromptVersion | null;
 };
 
-function getApiBase() {
-  return process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8000';
-}
+import { getApiBase } from '@/lib/api';
 
 async function fetchPrompts(): Promise<Prompt[]> {
   const res = await fetch(`${getApiBase()}/api/prompts`, {
@@ -49,7 +47,9 @@ export default async function PromptsPage() {
           {prompts.map((p) => (
             <li key={p.id} style={{ marginBottom: 12 }}>
               <div>
-                <strong>{p.name}</strong>{' '}
+                <a href={`/prompts/${p.id}`}>
+                  <strong>{p.name}</strong>
+                </a>{' '}
                 <span style={{ color: '#666' }}>
                   (v{p.latest_version?.version ?? '?'})
                 </span>

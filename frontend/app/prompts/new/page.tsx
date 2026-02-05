@@ -3,9 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
-function getApiBase() {
-  return process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8000';
-}
+import { getApiBase } from '@/lib/api';
 
 export default function NewPromptPage() {
   const router = useRouter();

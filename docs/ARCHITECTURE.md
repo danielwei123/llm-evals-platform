@@ -38,6 +38,12 @@ flowchart LR
 - `POST /api/prompts/{prompt_id}/versions` → create new version
 - `DELETE /api/prompts/{prompt_id}` → delete prompt (cascades versions)
 
+#### UI routes (v0)
+
+- `/prompts` → list prompts (shows latest version snippet)
+- `/prompts/new` → create prompt (creates v1)
+- `/prompts/{prompt_id}` → prompt detail + versions list + create new version
+
 We store immutable prompt *versions* under a stable prompt identity:
 
 ```mermaid
