@@ -46,23 +46,39 @@ def create_prompt(payload: PromptCreateIn, db: Session = Depends(get_db)):
 
 @router.get("", response_model=list[PromptOut])
 def list_prompts(db: Session = Depends(get_db)):
-    prompts = db.scalars(select(Prompt).order_by(Prompt.created_at.desc())).all()
+    """List prompts with their latest version.
 
-    # For each prompt, attach latest version in-memory (simple v0; optimize later)
-    out: list[PromptOut] = []
-    for p in prompts:
-        latest = db.scalar(
-            select(PromptVersion)
-            .where(PromptVersion.prompt_id == p.id)
-            .order_by(PromptVersion.version.desc())
-            .limit(1)
+    Avoids N+1 queries by joining against a (prompt_id, max(version)) subquery.
+    """
+
+    latest_versions = (
+        select(
+            PromptVersion.prompt_id.label("prompt_id"),
+            func.max(PromptVersion.version).label("max_version"),
         )
+        .group_by(PromptVersion.prompt_id)
+        .subquery()
+    )
+
+    rows = db.execute(
+        select(Prompt, PromptVersion)
+        .outerjoin(latest_versions, latest_versions.c.prompt_id == Prompt.id)
+        .outerjoin(
+            PromptVersion,
+            (PromptVersion.prompt_id == Prompt.id)
+            & (PromptVersion.version == latest_versions.c.max_version),
+        )
+        .order_by(Prompt.created_at.desc())
+    ).all()
+
+    out: list[PromptOut] = []
+    for prompt, latest in rows:
         out.append(
             PromptOut(
-                id=p.id,
-                name=p.name,
-                description=p.description,
-                created_at=p.created_at,
+                id=prompt.id,
+                name=prompt.name,
+                description=prompt.description,
+                created_at=prompt.created_at,
                 latest_version=PromptVersionOut.model_validate(latest)
                 if latest is not None
                 else None,
