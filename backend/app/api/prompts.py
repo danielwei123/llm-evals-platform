@@ -39,9 +39,8 @@ def create_prompt(payload: PromptCreateIn, db: Session = Depends(get_db)):
     db.add(version)
     db.commit()
 
-    db.refresh(prompt)
-    prompt.versions  # load
-    return prompt
+    # Avoid any lazy-loading surprises during response serialization.
+    return get_prompt(prompt.id, db)
 
 
 @router.get("", response_model=list[PromptOut])
