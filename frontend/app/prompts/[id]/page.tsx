@@ -1,4 +1,5 @@
 import { getApiBase } from '@/lib/api';
+import { DeletePromptButton } from './DeletePromptButton';
 import { NewVersionForm } from './NewVersionForm';
 
 type PromptVersion = {
@@ -53,6 +54,8 @@ export default async function PromptDetailPage({
         Latest: <strong>v{latest?.version ?? '?'}</strong> · Prompt ID:{' '}
         <code>{prompt.id}</code>
       </p>
+
+      <DeletePromptButton promptId={prompt.id} promptName={prompt.name} />
 
       <hr style={{ margin: '16px 0' }} />
 

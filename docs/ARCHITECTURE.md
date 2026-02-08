@@ -42,7 +42,7 @@ flowchart LR
 
 - `/prompts` → list prompts (shows latest version snippet)
 - `/prompts/new` → create prompt (creates v1)
-- `/prompts/{prompt_id}` → prompt detail + versions list + create new version
+- `/prompts/{prompt_id}` → prompt detail + versions list + create new version + delete prompt
 
 We store immutable prompt *versions* under a stable prompt identity:
 
