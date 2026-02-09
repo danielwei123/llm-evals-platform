@@ -33,10 +33,10 @@ async function fetchPrompt(promptId: string): Promise<PromptDetail> {
 export default async function PromptDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: { promptId: string };
 }) {
-  const { id } = params;
-  const prompt = await fetchPrompt(id);
+  const { promptId } = params;
+  const prompt = await fetchPrompt(promptId);
   const latest = prompt.versions.reduce<PromptVersion | null>((acc, v) => {
     if (!acc) return v;
     return v.version > acc.version ? v : acc;

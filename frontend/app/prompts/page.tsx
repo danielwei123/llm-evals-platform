@@ -1,36 +1,8 @@
-type PromptVersion = {
-  id: string;
-  prompt_id: string;
-  version: number;
-  content: string;
-  parameters?: Record<string, unknown> | null;
-  created_at: string;
-};
-
-type Prompt = {
-  id: string;
-  name: string;
-  description?: string | null;
-  created_at: string;
-  latest_version?: PromptVersion | null;
-};
-
 import { getApiBase } from '@/lib/api';
-
-async function fetchPrompts(): Promise<Prompt[]> {
-  const res = await fetch(`${getApiBase()}/api/prompts`, {
-    // v0: always fresh in dev
-    cache: 'no-store',
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Failed to load prompts: ${res.status} ${text}`);
-  }
-  return res.json();
-}
+import { listPrompts } from '@/lib/promptsApi';
 
 export default async function PromptsPage() {
-  const prompts = await fetchPrompts();
+  const prompts = await listPrompts();
 
   return (
     <main style={{ fontFamily: 'system-ui', padding: 24 }}>
