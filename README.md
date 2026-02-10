@@ -124,4 +124,5 @@ UI:
 ## Docs
 
 - `docs/ARCHITECTURE.md`
+- `docs/DEVELOPMENT.md`
 - `docs/SECURITY.md`

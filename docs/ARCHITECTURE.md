@@ -7,7 +7,7 @@
 - `infra/` — local infrastructure (docker-compose)
 - `docs/` — design docs & diagrams
 
-## Runtime components
+## Runtime components (local dev)
 
 ```mermaid
 flowchart LR
@@ -15,17 +15,34 @@ flowchart LR
   FE --> API[FastAPI (backend)]
   API --> PG[(Postgres)]
 
-  subgraph Local Dev
-    FE
+  subgraph Local Dev (docker-compose)
     API
     PG
   end
+
+  subgraph Local Dev (host machine)
+    FE
+  end
+```
+
+## Backend structure
+
+The backend is intentionally layered so we can grow into runs/traces/evals without turning into a ball of mud.
+
+```mermaid
+flowchart TB
+  R[FastAPI router\napp/api/*] --> S[Schemas\napp/schemas/*]
+  R --> DB[DB session\napp/db.py]
+  DB --> M[Models\napp/models/*]
+  M --> PG[(Postgres)]
+  R --> Settings[Settings\napp/settings.py]
 ```
 
 ## Data layer
 
 - Postgres is the system of record.
 - Alembic manages schema migrations.
+- `infra/docker-compose.yml` provides a consistent local environment.
 
 ### Prompt Registry (v0)
 
