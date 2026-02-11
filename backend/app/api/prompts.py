@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -129,25 +130,36 @@ def create_prompt_version(
     if prompt is None:
         raise HTTPException(status_code=404, detail="prompt not found")
 
-    next_version = (
-        db.scalar(
-            select(func.coalesce(func.max(PromptVersion.version), 0))
-            .where(PromptVersion.prompt_id == prompt_id)
+    # Version numbers are sequential per-prompt. We enforce uniqueness at the DB level
+    # (prompt_id, version). In the rare case of concurrent writes, we retry.
+    for _attempt in range(3):
+        next_version = (
+            db.scalar(
+                select(func.coalesce(func.max(PromptVersion.version), 0)).where(
+                    PromptVersion.prompt_id == prompt_id
+                )
+            )
+            or 0
+        ) + 1
+
+        version = PromptVersion(
+            prompt_id=prompt_id,
+            version=next_version,
+            content=payload.content,
+            parameters=payload.parameters,
         )
-        or 0
-    ) + 1
 
-    version = PromptVersion(
-        prompt_id=prompt_id,
-        version=next_version,
-        content=payload.content,
-        parameters=payload.parameters,
-    )
-    db.add(version)
-    db.commit()
-    db.refresh(version)
+        try:
+            db.add(version)
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            continue
 
-    return version
+        db.refresh(version)
+        return version
+
+    raise HTTPException(status_code=409, detail="could not allocate next prompt version (retry)")
 
 
 @router.delete("/{prompt_id}", status_code=status.HTTP_204_NO_CONTENT)
