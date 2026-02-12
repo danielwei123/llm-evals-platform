@@ -97,5 +97,5 @@ Notes:
 
 ## Frontend conventions
 
-- Keep API calls in shared helpers (see `frontend/src/lib/api/*`)
+- Keep API calls in shared helpers (see `frontend/lib/*`)
 - Prefer server components for layout/structure, client components for forms where needed

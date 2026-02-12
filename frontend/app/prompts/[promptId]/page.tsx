@@ -1,116 +1,66 @@
-import { getApiBase } from '@/lib/api';
-import { DeletePromptButton } from './DeletePromptButton';
-import { NewVersionForm } from './NewVersionForm';
-
-type PromptVersion = {
-  id: string;
-  prompt_id: string;
-  version: number;
-  content: string;
-  parameters?: Record<string, unknown> | null;
-  created_at: string;
-};
-
-type PromptDetail = {
-  id: string;
-  name: string;
-  description?: string | null;
-  created_at: string;
-  versions: PromptVersion[];
-};
-
-async function fetchPrompt(promptId: string): Promise<PromptDetail> {
-  const res = await fetch(`${getApiBase()}/api/prompts/${promptId}`, {
-    cache: 'no-store',
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Failed to load prompt: ${res.status} ${text}`);
-  }
-  return res.json();
-}
+import { getPrompt } from '@/lib/promptsApi';
+import { PromptDetailClient } from '@/components/PromptDetailClient';
 
 export default async function PromptDetailPage({
   params,
 }: {
   params: { promptId: string };
 }) {
-  const { promptId } = params;
-  const prompt = await fetchPrompt(promptId);
-  const latest = prompt.versions.reduce<PromptVersion | null>((acc, v) => {
-    if (!acc) return v;
-    return v.version > acc.version ? v : acc;
-  }, null);
+  const prompt = await getPrompt(params.promptId);
 
   return (
-    <main style={{ fontFamily: 'system-ui', padding: 24, maxWidth: 980 }}>
+    <main style={{ fontFamily: 'system-ui', padding: 24, display: 'grid', gap: 16 }}>
       <p>
-        <a href="/prompts">← Back to list</a>
+        <a href="/prompts">← Back to prompts</a>
       </p>
 
-      <h1 style={{ marginBottom: 6 }}>{prompt.name}</h1>
-      {prompt.description ? <p>{prompt.description}</p> : null}
-      <p style={{ color: '#666', marginTop: 0 }}>
-        Latest: <strong>v{latest?.version ?? '?'}</strong> · Prompt ID:{' '}
-        <code>{prompt.id}</code>
-      </p>
+      <header>
+        <h1 style={{ marginBottom: 4 }}>{prompt.name}</h1>
+        <div style={{ color: '#666' }}>
+          Prompt ID: <code>{prompt.id}</code>
+        </div>
+      </header>
 
-      <DeletePromptButton promptId={prompt.id} promptName={prompt.name} />
-
-      <hr style={{ margin: '16px 0' }} />
-
-      <h2>Versions</h2>
-      {prompt.versions.length === 0 ? (
-        <p>No versions yet (unexpected).</p>
-      ) : (
-        <ul>
-          {[...prompt.versions]
-            .sort((a, b) => b.version - a.version)
-            .map((v) => (
-              <li key={v.id} style={{ marginBottom: 16 }}>
+      <section style={{ padding: 12, border: '1px solid #ddd' }}>
+        <h2 style={{ marginTop: 0 }}>Versions</h2>
+        {prompt.versions.length === 0 ? (
+          <p>No versions.</p>
+        ) : (
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {prompt.versions.map((v) => (
+              <li key={v.id} style={{ marginBottom: 12 }}>
                 <div>
                   <strong>v{v.version}</strong>{' '}
-                  <span style={{ color: '#666', fontSize: 12 }}>
-                    ({new Date(v.created_at).toLocaleString()})
-                  </span>
+                  <span style={{ color: '#666', fontSize: 12 }}>{new Date(v.created_at).toISOString()}</span>
                 </div>
                 <pre
                   style={{
-                    background: '#f6f8fa',
+                    whiteSpace: 'pre-wrap',
+                    background: '#fafafa',
+                    border: '1px solid #eee',
                     padding: 12,
                     overflowX: 'auto',
-                    whiteSpace: 'pre-wrap',
-                    borderRadius: 6,
-                    marginTop: 8,
                   }}
                 >
                   {v.content}
                 </pre>
-                <details style={{ marginTop: 8 }}>
-                  <summary>Parameters</summary>
-                  <pre
-                    style={{
-                      background: '#f6f8fa',
-                      padding: 12,
-                      overflowX: 'auto',
-                      borderRadius: 6,
-                    }}
-                  >
-                    {JSON.stringify(v.parameters ?? null, null, 2)}
-                  </pre>
-                </details>
+                {v.parameters ? (
+                  <details>
+                    <summary>Parameters</summary>
+                    <pre style={{ background: '#fafafa', border: '1px solid #eee', padding: 12 }}>
+                      {JSON.stringify(v.parameters, null, 2)}
+                    </pre>
+                  </details>
+                ) : (
+                  <div style={{ color: '#666', fontSize: 12 }}>Parameters: null</div>
+                )}
               </li>
             ))}
-        </ul>
-      )}
+          </ul>
+        )}
+      </section>
 
-      <hr style={{ margin: '16px 0' }} />
-      <NewVersionForm promptId={prompt.id} />
-
-      <hr style={{ margin: '24px 0' }} />
-      <p style={{ color: '#666' }}>
-        API base: <code>{getApiBase()}</code>
-      </p>
+      <PromptDetailClient prompt={prompt} />
     </main>
   );
 }
