@@ -1,0 +1,71 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: llm_evals_test
+          POSTGRES_USER: llm_evals
+          POSTGRES_PASSWORD: llm_evals
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U llm_evals -d llm_evals_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e "./backend[dev]"
+
+      - name: Run migrations
+        run: |
+          cd backend
+          alembic upgrade head
+
+      - name: Run tests
+        run: |
+          cd backend
+          pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build
+        run: |
+          cd frontend
+          npm run build

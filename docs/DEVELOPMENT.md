@@ -89,6 +89,21 @@ Notes:
 - Keep migrations **small and reversible**.
 - Prefer explicit constraints + indexes.
 
+## CI + testing
+
+GitHub Actions runs a minimal CI workflow on every PR:
+- Backend: apply migrations + run `pytest`
+- Frontend: `npm run build`
+
+Run backend tests locally:
+
+```bash
+cd backend
+python -m pip install -e ".[dev]"
+export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
+pytest -q
+```
+
 ## API conventions
 
 - REST-ish endpoints under `/api/*`
