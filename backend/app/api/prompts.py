@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -45,8 +45,16 @@ def create_prompt(payload: PromptCreateIn, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[PromptOut])
-def list_prompts(db: Session = Depends(get_db)):
+def list_prompts(
+    q: str | None = None,
+    limit: int = Query(default=50, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+):
     """List prompts with their latest version.
+
+    - Supports basic search via `q` (matches prompt name/description).
+    - Supports pagination via `limit` and `offset`.
 
     Avoids N+1 queries by joining against a (prompt_id, max(version)) subquery.
     """
@@ -60,7 +68,7 @@ def list_prompts(db: Session = Depends(get_db)):
         .subquery()
     )
 
-    rows = db.execute(
+    stmt = (
         select(Prompt, PromptVersion)
         .outerjoin(latest_versions, latest_versions.c.prompt_id == Prompt.id)
         .outerjoin(
@@ -69,7 +77,15 @@ def list_prompts(db: Session = Depends(get_db)):
             & (PromptVersion.version == latest_versions.c.max_version),
         )
         .order_by(Prompt.created_at.desc())
-    ).all()
+        .limit(limit)
+        .offset(offset)
+    )
+
+    if q is not None and q.strip() != "":
+        like = f"%{q.strip()}%"
+        stmt = stmt.where((Prompt.name.ilike(like)) | (Prompt.description.ilike(like)))
+
+    rows = db.execute(stmt).all()
 
     out: list[PromptOut] = []
     for prompt, latest in rows:

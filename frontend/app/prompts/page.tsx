@@ -1,8 +1,13 @@
 import { getApiBase } from '@/lib/api';
 import { listPrompts } from '@/lib/promptsApi';
 
-export default async function PromptsPage() {
-  const prompts = await listPrompts();
+export default async function PromptsPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string };
+}) {
+  const q = (searchParams?.q ?? '').trim();
+  const prompts = await listPrompts({ q: q || undefined, limit: 100, offset: 0 });
 
   return (
     <main style={{ fontFamily: 'system-ui', padding: 24 }}>
@@ -12,8 +17,26 @@ export default async function PromptsPage() {
         <a href="/prompts/new">Create a new prompt</a>
       </p>
 
+      <form method="GET" style={{ margin: '16px 0', display: 'flex', gap: 8 }}>
+        <input
+          type="text"
+          name="q"
+          defaultValue={q}
+          placeholder="Search prompts…"
+          style={{ padding: 8, width: 320, maxWidth: '100%' }}
+        />
+        <button type="submit" style={{ padding: '8px 12px' }}>
+          Search
+        </button>
+        {q ? (
+          <a href="/prompts" style={{ alignSelf: 'center' }}>
+            Clear
+          </a>
+        ) : null}
+      </form>
+
       {prompts.length === 0 ? (
-        <p>No prompts yet. Use the API to create one.</p>
+        <p>{q ? 'No prompts match your search.' : 'No prompts yet. Use the API to create one.'}</p>
       ) : (
         <ul>
           {prompts.map((p) => (

@@ -49,7 +49,7 @@ flowchart TB
 #### API (v0)
 
 - `POST /api/prompts` → create prompt + version 1
-- `GET /api/prompts` → list prompts (includes latest version; implemented as a single join query to avoid N+1)
+- `GET /api/prompts?q=&limit=&offset=` → list prompts (includes latest version; supports simple search + pagination; implemented as a single join query to avoid N+1)
 - `GET /api/prompts/{prompt_id}` → prompt detail w/ versions
 - `PATCH /api/prompts/{prompt_id}` → update prompt metadata
 - `POST /api/prompts/{prompt_id}/versions` → create new version (allocates next sequential version; DB-enforced uniqueness with retry on concurrent writes)

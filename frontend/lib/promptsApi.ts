@@ -17,8 +17,20 @@ async function readError(res: Response) {
   }
 }
 
-export async function listPrompts(): Promise<PromptListItem[]> {
-  const res = await fetch(`${getApiBase()}/api/prompts`, { cache: 'no-store' });
+export async function listPrompts(opts?: {
+  q?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<PromptListItem[]> {
+  const params = new URLSearchParams();
+  if (opts?.q) params.set('q', opts.q);
+  if (opts?.limit != null) params.set('limit', String(opts.limit));
+  if (opts?.offset != null) params.set('offset', String(opts.offset));
+
+  const qs = params.toString();
+  const url = `${getApiBase()}/api/prompts${qs ? `?${qs}` : ''}`;
+
+  const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`Failed to load prompts: ${res.status} ${await readError(res)}`);
   return res.json();
 }

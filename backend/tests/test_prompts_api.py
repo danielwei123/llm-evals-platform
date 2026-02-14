@@ -96,3 +96,34 @@ def test_create_prompt_duplicate_name_is_409():
 
     r2 = client.post("/api/prompts", json=payload)
     assert r2.status_code == 409
+
+
+def test_list_prompts_search_and_pagination():
+    _reset_db()
+    client = TestClient(app)
+
+    for name in ["alpha", "beta", "gamma", "alphabet"]:
+        r = client.post(
+            "/api/prompts",
+            json={
+                "name": name,
+                "description": f"desc for {name}",
+                "content": f"content for {name}",
+                "parameters": None,
+            },
+        )
+        assert r.status_code == 201, r.text
+
+    # Search by substring in name
+    r = client.get("/api/prompts", params={"q": "alph"})
+    assert r.status_code == 200
+    names = sorted([p["name"] for p in r.json()])
+    assert names == ["alpha", "alphabet"]
+
+    # Pagination: stable ordering is newest-first by created_at
+    r1 = client.get("/api/prompts", params={"limit": 2, "offset": 0})
+    r2 = client.get("/api/prompts", params={"limit": 2, "offset": 2})
+    assert r1.status_code == 200 and r2.status_code == 200
+    assert len(r1.json()) == 2
+    assert len(r2.json()) == 2
+    assert {p["name"] for p in r1.json()}.isdisjoint({p["name"] for p in r2.json()})
