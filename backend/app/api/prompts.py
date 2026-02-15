@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import Prompt, PromptVersion
 from app.schemas.prompt import (
+    PromptActivateIn,
     PromptCreateIn,
     PromptDetailOut,
     PromptOut,
@@ -27,7 +28,7 @@ def create_prompt(payload: PromptCreateIn, db: Session = Depends(get_db)):
     if existing is not None:
         raise HTTPException(status_code=409, detail="prompt name already exists")
 
-    prompt = Prompt(name=payload.name, description=payload.description)
+    prompt = Prompt(name=payload.name, description=payload.description, active_version=1)
     db.add(prompt)
     db.flush()  # assign prompt.id
 
@@ -95,6 +96,7 @@ def list_prompts(
                 name=prompt.name,
                 description=prompt.description,
                 created_at=prompt.created_at,
+                active_version=prompt.active_version,
                 latest_version=PromptVersionOut.model_validate(latest)
                 if latest is not None
                 else None,
@@ -121,6 +123,7 @@ def get_prompt(prompt_id: uuid.UUID, db: Session = Depends(get_db)):
         name=prompt.name,
         description=prompt.description,
         created_at=prompt.created_at,
+        active_version=prompt.active_version,
         versions=[PromptVersionOut.model_validate(v) for v in versions],
     )
 
@@ -176,6 +179,29 @@ def create_prompt_version(
         return version
 
     raise HTTPException(status_code=409, detail="could not allocate next prompt version (retry)")
+
+
+@router.post("/{prompt_id}/activate", response_model=PromptDetailOut)
+def activate_prompt_version(
+    prompt_id: uuid.UUID, payload: PromptActivateIn, db: Session = Depends(get_db)
+):
+    prompt = db.scalar(select(Prompt).where(Prompt.id == prompt_id))
+    if prompt is None:
+        raise HTTPException(status_code=404, detail="prompt not found")
+
+    exists = db.scalar(
+        select(PromptVersion.id).where(
+            (PromptVersion.prompt_id == prompt_id) & (PromptVersion.version == payload.version)
+        )
+    )
+    if exists is None:
+        raise HTTPException(status_code=404, detail="prompt version not found")
+
+    prompt.active_version = payload.version
+    db.add(prompt)
+    db.commit()
+
+    return get_prompt(prompt_id, db)
 
 
 @router.delete("/{prompt_id}", status_code=status.HTTP_204_NO_CONTENT)

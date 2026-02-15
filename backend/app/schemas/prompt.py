@@ -23,6 +23,7 @@ class PromptOut(BaseModel):
     name: str
     description: str | None = None
     created_at: datetime
+    active_version: int
     latest_version: PromptVersionOut | None = None
 
 
@@ -32,6 +33,7 @@ class PromptDetailOut(BaseModel):
     name: str
     description: str | None = None
     created_at: datetime
+    active_version: int
     versions: list[PromptVersionOut]
 
 
@@ -49,3 +51,7 @@ class PromptUpdateIn(BaseModel):
 class PromptVersionCreateIn(BaseModel):
     content: str = Field(min_length=1)
     parameters: dict | None = None
+
+
+class PromptActivateIn(BaseModel):
+    version: int = Field(ge=1)

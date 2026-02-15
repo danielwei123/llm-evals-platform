@@ -37,6 +37,7 @@ def test_prompt_crud_happy_path():
     assert r.status_code == 201, r.text
     created = r.json()
     assert created["name"] == "support_reply"
+    assert created["active_version"] == 1
     assert len(created["versions"]) == 1
     assert created["versions"][0]["version"] == 1
 
@@ -48,6 +49,7 @@ def test_prompt_crud_happy_path():
     prompts = r.json()
     assert len(prompts) == 1
     assert prompts[0]["id"] == prompt_id
+    assert prompts[0]["active_version"] == 1
     assert prompts[0]["latest_version"]["version"] == 1
 
     # Create version 2
@@ -63,7 +65,14 @@ def test_prompt_crud_happy_path():
     r = client.get(f"/api/prompts/{prompt_id}")
     assert r.status_code == 200
     detail = r.json()
+    assert detail["active_version"] == 1
     assert [v["version"] for v in detail["versions"]] == [2, 1]
+
+    # Activate v2
+    r = client.post(f"/api/prompts/{prompt_id}/activate", json={"version": 2})
+    assert r.status_code == 200, r.text
+    activated = r.json()
+    assert activated["active_version"] == 2
 
     # Patch metadata
     r = client.patch(f"/api/prompts/{prompt_id}", json={"description": "Updated"})
