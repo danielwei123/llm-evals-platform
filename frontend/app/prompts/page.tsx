@@ -46,7 +46,7 @@ export default async function PromptsPage({
                   <strong>{p.name}</strong>
                 </a>{' '}
                 <span style={{ color: '#666' }}>
-                  (v{p.latest_version?.version ?? '?'})
+                  (active v{p.active_version}, latest v{p.latest_version?.version ?? '?'})
                 </span>
               </div>
               {p.description ? <div>{p.description}</div> : null}

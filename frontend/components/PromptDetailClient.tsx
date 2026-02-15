@@ -4,7 +4,12 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { PromptDetail } from '@/lib/types';
-import { createPromptVersion, deletePrompt, updatePrompt } from '@/lib/promptsApi';
+import {
+  activatePromptVersion,
+  createPromptVersion,
+  deletePrompt,
+  updatePrompt,
+} from '@/lib/promptsApi';
 
 function toJsonPretty(obj: unknown): string {
   if (obj == null) return '';
@@ -26,6 +31,9 @@ export function PromptDetailClient({ prompt }: { prompt: PromptDetail }) {
   const [newContent, setNewContent] = useState('');
   const [newParametersJson, setNewParametersJson] = useState('');
   const [creatingVersion, setCreatingVersion] = useState(false);
+
+  const [activating, setActivating] = useState(false);
+  const [activeVersion, setActiveVersion] = useState<number>(prompt.active_version);
 
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +102,54 @@ export function PromptDetailClient({ prompt }: { prompt: PromptDetail }) {
           >
             {deleting ? 'Deleting…' : 'Delete'}
           </button>
+        </div>
+      </section>
+
+      <section style={{ padding: 12, border: '1px solid #ddd' }}>
+        <h2 style={{ marginTop: 0 }}>Active version</h2>
+
+        <div style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>
+          This controls what version is considered “prod” / currently active.
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ fontWeight: 600 }}>Activate</span>
+            <select
+              value={String(activeVersion)}
+              onChange={(e) => setActiveVersion(Number(e.target.value))}
+              style={{ padding: 6 }}
+            >
+              {prompt.versions.map((v) => (
+                <option key={v.id} value={v.version}>
+                  v{v.version}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <button
+            disabled={activating || activeVersion === prompt.active_version}
+            onClick={async () => {
+              setError(null);
+              setActivating(true);
+              try {
+                await activatePromptVersion(prompt.id, activeVersion);
+                router.refresh();
+              } catch (e) {
+                setError(e instanceof Error ? e.message : String(e));
+              } finally {
+                setActivating(false);
+              }
+            }}
+            style={{ padding: '8px 12px' }}
+          >
+            {activating ? 'Activating…' : 'Activate'}
+          </button>
+
+          {activeVersion === prompt.active_version ? (
+            <span style={{ color: '#666', fontSize: 12 }}>Already active.</span>
+          ) : null}
         </div>
       </section>
 

@@ -75,6 +75,17 @@ export async function createPromptVersion(
   return res.json();
 }
 
+export async function activatePromptVersion(promptId: string, version: number): Promise<PromptDetail> {
+  const res = await fetch(`${getApiBase()}/api/prompts/${promptId}/activate`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ version }),
+  });
+  if (!res.ok)
+    throw new Error(`Failed to activate prompt version: ${res.status} ${await readError(res)}`);
+  return res.json();
+}
+
 export async function deletePrompt(promptId: string): Promise<void> {
   const res = await fetch(`${getApiBase()}/api/prompts/${promptId}`, { method: 'DELETE' });
   if (!res.ok && res.status !== 404)

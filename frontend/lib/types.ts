@@ -12,6 +12,7 @@ export type PromptListItem = {
   name: string;
   description?: string | null;
   created_at: string;
+  active_version: number;
   latest_version?: PromptVersion | null;
 };
 
@@ -20,6 +21,7 @@ export type PromptDetail = {
   name: string;
   description?: string | null;
   created_at: string;
+  active_version: number;
   versions: PromptVersion[];
 };
 

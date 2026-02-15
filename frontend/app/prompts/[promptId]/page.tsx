@@ -19,6 +19,9 @@ export default async function PromptDetailPage({
         <div style={{ color: '#666' }}>
           Prompt ID: <code>{prompt.id}</code>
         </div>
+        <div style={{ color: '#666' }}>
+          Active version: <strong>v{prompt.active_version}</strong>
+        </div>
       </header>
 
       <section style={{ padding: 12, border: '1px solid #ddd' }}>
@@ -31,6 +34,11 @@ export default async function PromptDetailPage({
               <li key={v.id} style={{ marginBottom: 12 }}>
                 <div>
                   <strong>v{v.version}</strong>{' '}
+                  {v.version === prompt.active_version ? (
+                    <span style={{ marginLeft: 6, padding: '1px 6px', border: '1px solid #6c6', color: '#262', fontSize: 12 }}>
+                      active
+                    </span>
+                  ) : null}{' '}
                   <span style={{ color: '#666', fontSize: 12 }}>{new Date(v.created_at).toISOString()}</span>
                 </div>
                 <pre
