@@ -53,6 +53,7 @@ flowchart TB
 - `GET /api/prompts/{prompt_id}` → prompt detail w/ versions
 - `PATCH /api/prompts/{prompt_id}` → update prompt metadata
 - `POST /api/prompts/{prompt_id}/versions` → create new version (allocates next sequential version; DB-enforced uniqueness with retry on concurrent writes)
+- `POST /api/prompts/{prompt_id}/activate` → set the prompt’s `active_version` (promotion/rollback)
 - `DELETE /api/prompts/{prompt_id}` → delete prompt (cascades versions)
 
 #### UI routes (v0)
@@ -69,6 +70,7 @@ erDiagram
     uuid id PK
     string name "unique"
     text description
+    int active_version
     timestamptz created_at
   }
 

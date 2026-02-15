@@ -107,6 +107,14 @@ List prompts:
 curl -sS 'http://localhost:8000/api/prompts' | jq
 ```
 
+Activate (promote/rollback) a version:
+
+```bash
+curl -sS -X POST "http://localhost:8000/api/prompts/<prompt_id>/activate" \
+  -H 'content-type: application/json' \
+  -d '{"version": 2}' | jq
+```
+
 ### Frontend
 
 ```bash
