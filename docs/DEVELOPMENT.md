@@ -92,15 +92,16 @@ Notes:
 ## CI + testing
 
 GitHub Actions runs a minimal CI workflow on every PR:
-- Backend: apply migrations + run `pytest`
+- Backend: apply migrations + run `ruff` + `pytest`
 - Frontend: `npm run build`
 
-Run backend tests locally:
+Run backend lint + tests locally:
 
 ```bash
 cd backend
 python -m pip install -e ".[dev]"
 export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
+ruff check app tests
 pytest -q
 ```
 
