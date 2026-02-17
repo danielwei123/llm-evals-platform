@@ -15,9 +15,16 @@ Prereqs:
 make up
 ```
 
+Or start DB + backend + frontend all at once:
+
+```bash
+make dev
+```
+
 - Backend: http://localhost:8000
 - Swagger: http://localhost:8000/docs
 - Health: http://localhost:8000/health
+- Frontend: http://localhost:3000
 
 ### 2) Run migrations
 

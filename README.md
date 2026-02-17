@@ -66,8 +66,13 @@ flowchart LR
 ### Start Postgres + backend
 
 ```bash
-cd infra
-docker compose up --build
+make up
+```
+
+Or start Postgres + backend + frontend together:
+
+```bash
+make dev
 ```
 
 Backend:
@@ -87,8 +92,7 @@ alembic upgrade head
 Option B — run migrations via docker-compose (recommended for consistency):
 
 ```bash
-cd infra
-docker compose --profile tools run --rm migrate
+make migrate
 ```
 
 ### Prompt Registry API (v0)
