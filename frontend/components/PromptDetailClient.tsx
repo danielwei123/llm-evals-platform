@@ -209,6 +209,60 @@ export function PromptDetailClient({ prompt }: { prompt: PromptDetail }) {
           {creatingVersion ? 'Creating…' : 'Create version'}
         </button>
       </section>
+
+      <section style={{ padding: 12, border: '1px solid #ddd' }}>
+        <h2 style={{ marginTop: 0 }}>Versions</h2>
+        <div style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>
+          Ordered newest → oldest.
+        </div>
+
+        <div style={{ display: 'grid', gap: 12 }}>
+          {prompt.versions.map((v) => (
+            <div key={v.id} style={{ padding: 12, background: '#fafafa', border: '1px solid #eee' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                <strong>
+                  v{v.version}{v.version === prompt.active_version ? ' (active)' : ''}
+                </strong>
+                <span style={{ color: '#666', fontSize: 12 }}>
+                  {new Date(v.created_at).toLocaleString()}
+                </span>
+              </div>
+
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontWeight: 600, fontSize: 12, color: '#444' }}>Content</div>
+                <pre
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    background: '#fff',
+                    border: '1px solid #eee',
+                    padding: 10,
+                    fontSize: 12,
+                    overflowX: 'auto',
+                  }}
+                >
+                  {v.content}
+                </pre>
+              </div>
+
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontWeight: 600, fontSize: 12, color: '#444' }}>Parameters</div>
+                <pre
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    background: '#fff',
+                    border: '1px solid #eee',
+                    padding: 10,
+                    fontSize: 12,
+                    overflowX: 'auto',
+                  }}
+                >
+                  {toJsonPretty(v.parameters)}
+                </pre>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
