@@ -37,6 +37,22 @@ class PromptDetailOut(BaseModel):
     versions: list[PromptVersionOut]
 
 
+class PromptResolvedOut(BaseModel):
+    """Prompt resolved to its currently-active version.
+
+    Useful for runners/execution: you usually want a stable name, but you need
+    immutable content+parameters at the active version.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    name: str
+    description: str | None = None
+    created_at: datetime
+    active_version: int
+    active: PromptVersionOut
+
+
 class PromptCreateIn(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     description: str | None = None

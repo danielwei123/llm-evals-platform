@@ -14,6 +14,7 @@ from app.schemas.prompt import (
     PromptCreateIn,
     PromptDetailOut,
     PromptOut,
+    PromptResolvedOut,
     PromptUpdateIn,
     PromptVersionCreateIn,
     PromptVersionOut,
@@ -104,6 +105,38 @@ def list_prompts(
         )
 
     return out
+
+
+@router.get("/by-name/{name}", response_model=PromptResolvedOut)
+def resolve_prompt_by_name(name: str, db: Session = Depends(get_db)):
+    """Resolve a prompt by stable name to its active version.
+
+    This is the read path runners will use: stable prompt name → immutable prompt
+    version (content + parameters).
+    """
+
+    prompt = db.scalar(select(Prompt).where(Prompt.name == name))
+    if prompt is None:
+        raise HTTPException(status_code=404, detail="prompt not found")
+
+    active = db.scalar(
+        select(PromptVersion).where(
+            (PromptVersion.prompt_id == prompt.id)
+            & (PromptVersion.version == prompt.active_version)
+        )
+    )
+    if active is None:
+        # Should never happen, but we keep the API honest.
+        raise HTTPException(status_code=409, detail="active prompt version missing")
+
+    return PromptResolvedOut(
+        id=prompt.id,
+        name=prompt.name,
+        description=prompt.description,
+        created_at=prompt.created_at,
+        active_version=prompt.active_version,
+        active=PromptVersionOut.model_validate(active),
+    )
 
 
 @router.get("/{prompt_id}", response_model=PromptDetailOut)

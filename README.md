@@ -111,6 +111,12 @@ List prompts:
 curl -sS 'http://localhost:8000/api/prompts' | jq
 ```
 
+Resolve a prompt by name to its active version (runner read path):
+
+```bash
+curl -sS 'http://localhost:8000/api/prompts/by-name/support_reply' | jq
+```
+
 Activate (promote/rollback) a version:
 
 ```bash
