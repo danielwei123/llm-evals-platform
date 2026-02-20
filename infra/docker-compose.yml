@@ -15,6 +15,24 @@ services:
       timeout: 5s
       retries: 20
 
+  # Ephemeral Postgres for running tests in containers (no host DB required).
+  db_test:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: llm_evals_test
+      POSTGRES_USER: llm_evals
+      POSTGRES_PASSWORD: llm_evals
+    ports:
+      - "${POSTGRES_TEST_PORT:-5433}:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U llm_evals -d llm_evals_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+    profiles: ["test"]
+
   backend:
     build:
       context: ../backend
@@ -37,6 +55,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
+  backend_test:
+    build:
+      context: ../backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://llm_evals:llm_evals@db_test:5432/llm_evals_test
+    depends_on:
+      db_test:
+        condition: service_healthy
+    command: ["sh", "-lc", "alembic upgrade head && ruff check app tests && pytest -q"]
+    profiles: ["test"]
 
   migrate:
     build:

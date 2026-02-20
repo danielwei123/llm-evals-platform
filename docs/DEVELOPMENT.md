@@ -102,7 +102,15 @@ GitHub Actions runs a minimal CI workflow on every PR:
 - Backend: apply migrations + run `ruff` + `pytest`
 - Frontend: `npm run build`
 
-Run backend lint + tests locally:
+Run backend lint + tests.
+
+Recommended (no host Postgres required):
+
+```bash
+make test
+```
+
+Alternative (local python env + local Postgres):
 
 ```bash
 cd backend

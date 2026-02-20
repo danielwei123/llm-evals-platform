@@ -1,4 +1,4 @@
-.PHONY: help up dev down logs migrate fe
+.PHONY: help up dev down logs migrate fe test
 
 help:
 	@echo "Targets:"
@@ -26,3 +26,6 @@ migrate:
 
 fe:
 	cd infra && docker compose --profile dev up frontend
+
+test:
+	cd infra && docker compose --profile test run --rm backend_test
