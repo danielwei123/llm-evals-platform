@@ -103,7 +103,35 @@ sequenceDiagram
   API-->>FE: 201 PromptDetailOut (prompt + versions)
 ```
 
+## Runs (v0 scaffold)
+
+We now have a minimal `runs` table + API to **queue** executions. This is intentionally small
+and will evolve once the Codex runner is wired in.
+
+### API (v0 scaffold)
+
+- `POST /api/runs` → create a queued run for a prompt’s *active* version
+- `GET /api/runs?prompt_id=&limit=&offset=` → list runs (newest first)
+- `GET /api/runs/{run_id}` → run detail
+
+```mermaid
+erDiagram
+  runs {
+    uuid id PK
+    uuid prompt_id FK
+    int prompt_version
+    string status "queued|running|succeeded|failed"
+    jsonb input
+    text output
+    text error
+    timestamptz created_at
+    timestamptz started_at
+    timestamptz finished_at
+  }
+
+  prompts ||--o{ runs : executed
+```
+
 Planned next entities:
-- runs (per execution)
 - spans/traces (observability)
 - eval datasets + results

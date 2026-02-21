@@ -28,6 +28,7 @@ Prompt-first today, designed to support **agent/tool traces** tomorrow.
 - Roll back quickly
 
 ### Milestone B — Runs + Traces + Monitoring
+- (scaffolded) `runs` table + API to queue runs
 - Run a prompt via Codex CLI runner
 - Store run + spans
 - UI: runs list + trace viewer

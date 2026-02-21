@@ -17,7 +17,7 @@ from app.main import app
 def _reset_db():
     # Keep it simple: truncate known tables (CASCADE handles FK ordering).
     with engine.begin() as conn:
-        conn.execute(text("TRUNCATE TABLE prompt_versions, prompts CASCADE"))
+        conn.execute(text("TRUNCATE TABLE runs, prompt_versions, prompts CASCADE"))
 
 
 def test_prompt_crud_happy_path():
