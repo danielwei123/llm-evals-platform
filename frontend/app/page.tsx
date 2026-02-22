@@ -12,6 +12,9 @@ export default function Home() {
         <li>
           Prompt Registry: <Link href="/prompts">/prompts</Link>
         </li>
+        <li>
+          Runs: <Link href="/runs">/runs</Link>
+        </li>
       </ul>
     </main>
   );

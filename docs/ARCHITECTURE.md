@@ -132,6 +132,12 @@ erDiagram
   prompts ||--o{ runs : executed
 ```
 
+### UI routes (v0 scaffold)
+
+- `/runs` → list runs
+- `/runs/new` → queue a run (creates a `queued` run record)
+- `/runs/{run_id}` → run detail
+
 Planned next entities:
 - spans/traces (observability)
 - eval datasets + results

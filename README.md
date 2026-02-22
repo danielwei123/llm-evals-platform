@@ -139,6 +139,9 @@ UI:
 - Prompt Registry list: http://localhost:3000/prompts
 - Prompt detail (versions): http://localhost:3000/prompts/<prompt_id>
 - Create prompt (v0): http://localhost:3000/prompts/new
+- Runs list: http://localhost:3000/runs
+- Queue a run: http://localhost:3000/runs/new
+- Run detail: http://localhost:3000/runs/<run_id>
 
 ## Docs
 

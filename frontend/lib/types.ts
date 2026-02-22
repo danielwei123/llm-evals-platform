@@ -7,6 +7,26 @@ export type PromptVersion = {
   created_at: string;
 };
 
+export type RunStatus = 'queued' | 'running' | 'succeeded' | 'failed';
+
+export type Run = {
+  id: string;
+  prompt_id: string;
+  prompt_version: number;
+  status: RunStatus;
+  input?: Record<string, unknown> | null;
+  output?: string | null;
+  error?: string | null;
+  created_at: string;
+  started_at?: string | null;
+  finished_at?: string | null;
+};
+
+export type RunCreateIn = {
+  prompt_name: string;
+  input?: Record<string, unknown> | null;
+};
+
 export type PromptListItem = {
   id: string;
   name: string;
