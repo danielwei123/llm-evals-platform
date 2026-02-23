@@ -49,7 +49,7 @@ flowchart TB
 #### API (v0)
 
 - `POST /api/prompts` → create prompt + version 1
-- `GET /api/prompts?q=&limit=&offset=` → list prompts (includes latest version; supports simple search + pagination; implemented as a single join query to avoid N+1)
+- `GET /api/prompts?q=&tag=&limit=&offset=` → list prompts (includes latest version; supports simple search + tag filter + pagination; implemented as a single join query + 2nd query for tags)
 - `GET /api/prompts/by-name/{name}` → resolve stable prompt name to its active version (runner read path)
 - `GET /api/prompts/{prompt_id}` → prompt detail w/ versions
 - `PATCH /api/prompts/{prompt_id}` → update prompt metadata
@@ -84,7 +84,21 @@ erDiagram
     timestamptz created_at
   }
 
+  tags {
+    uuid id PK
+    string name "unique"
+    timestamptz created_at
+  }
+
+  prompt_tags {
+    uuid prompt_id FK
+    uuid tag_id FK
+    timestamptz created_at
+  }
+
   prompts ||--o{ prompt_versions : has
+  prompts ||--o{ prompt_tags : labeled
+  tags ||--o{ prompt_tags : used
 ```
 
 #### Create flow (v0)

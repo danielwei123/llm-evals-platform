@@ -2,12 +2,45 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func, text
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+
+if TYPE_CHECKING:
+    from .tag import Tag
+
+prompt_tags = Table(
+    "prompt_tags",
+    Base.metadata,
+    Column(
+        "prompt_id",
+        UUID(as_uuid=True),
+        ForeignKey("prompts.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "tag_id",
+        UUID(as_uuid=True),
+        ForeignKey("tags.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("created_at", DateTime(timezone=True), server_default=func.now(), nullable=False),
+)
 
 
 class Prompt(Base):
@@ -24,6 +57,13 @@ class Prompt(Base):
         back_populates="prompt",
         cascade="all, delete-orphan",
         order_by=lambda: PromptVersion.version.desc(),
+    )
+
+    tags: Mapped[list["Tag"]] = relationship(
+        "Tag",
+        secondary=prompt_tags,
+        back_populates="prompts",
+        order_by="Tag.name",
     )
 
 

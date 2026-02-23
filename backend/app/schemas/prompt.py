@@ -22,6 +22,7 @@ class PromptOut(BaseModel):
     id: uuid.UUID
     name: str
     description: str | None = None
+    tags: list[str] = []
     created_at: datetime
     active_version: int
     latest_version: PromptVersionOut | None = None
@@ -32,6 +33,7 @@ class PromptDetailOut(BaseModel):
     id: uuid.UUID
     name: str
     description: str | None = None
+    tags: list[str] = []
     created_at: datetime
     active_version: int
     versions: list[PromptVersionOut]
@@ -48,6 +50,7 @@ class PromptResolvedOut(BaseModel):
     id: uuid.UUID
     name: str
     description: str | None = None
+    tags: list[str] = []
     created_at: datetime
     active_version: int
     active: PromptVersionOut
@@ -56,12 +59,14 @@ class PromptResolvedOut(BaseModel):
 class PromptCreateIn(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     description: str | None = None
+    tags: list[str] | None = None
     content: str = Field(min_length=1)
     parameters: dict | None = None
 
 
 class PromptUpdateIn(BaseModel):
     description: str | None = None
+    tags: list[str] | None = None
 
 
 class PromptVersionCreateIn(BaseModel):

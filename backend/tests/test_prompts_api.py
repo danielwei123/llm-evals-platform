@@ -30,6 +30,7 @@ def test_prompt_crud_happy_path():
         json={
             "name": "support_reply",
             "description": "Tone + structure for support",
+            "tags": ["Support", "tone"],
             "content": "You are helpful...",
             "parameters": {"temperature": 0.2},
         },
@@ -38,6 +39,7 @@ def test_prompt_crud_happy_path():
     created = r.json()
     assert created["name"] == "support_reply"
     assert created["active_version"] == 1
+    assert sorted(created["tags"]) == ["support", "tone"]
     assert len(created["versions"]) == 1
     assert created["versions"][0]["version"] == 1
 
@@ -50,6 +52,7 @@ def test_prompt_crud_happy_path():
     assert len(prompts) == 1
     assert prompts[0]["id"] == prompt_id
     assert prompts[0]["active_version"] == 1
+    assert sorted(prompts[0]["tags"]) == ["support", "tone"]
     assert prompts[0]["latest_version"]["version"] == 1
 
     # Create version 2
@@ -74,10 +77,15 @@ def test_prompt_crud_happy_path():
     activated = r.json()
     assert activated["active_version"] == 2
 
-    # Patch metadata
-    r = client.patch(f"/api/prompts/{prompt_id}", json={"description": "Updated"})
+    # Patch metadata (including tags)
+    r = client.patch(
+        f"/api/prompts/{prompt_id}",
+        json={"description": "Updated", "tags": ["support", "beta"]},
+    )
     assert r.status_code == 200
-    assert r.json()["description"] == "Updated"
+    patched = r.json()
+    assert patched["description"] == "Updated"
+    assert sorted(patched["tags"]) == ["beta", "support"]
 
     # Delete
     r = client.delete(f"/api/prompts/{prompt_id}")
