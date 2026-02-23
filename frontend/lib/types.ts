@@ -31,6 +31,7 @@ export type PromptListItem = {
   id: string;
   name: string;
   description?: string | null;
+  tags: string[];
   created_at: string;
   active_version: number;
   latest_version?: PromptVersion | null;
@@ -40,6 +41,7 @@ export type PromptDetail = {
   id: string;
   name: string;
   description?: string | null;
+  tags: string[];
   created_at: string;
   active_version: number;
   versions: PromptVersion[];
@@ -48,12 +50,14 @@ export type PromptDetail = {
 export type PromptCreateIn = {
   name: string;
   description?: string | null;
+  tags?: string[] | null;
   content: string;
   parameters?: Record<string, unknown> | null;
 };
 
 export type PromptUpdateIn = {
   description?: string | null;
+  tags?: string[] | null;
 };
 
 export type PromptVersionCreateIn = {

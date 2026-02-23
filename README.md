@@ -103,13 +103,19 @@ Create a prompt:
 ```bash
 curl -sS -X POST 'http://localhost:8000/api/prompts' \
   -H 'content-type: application/json' \
-  -d '{"name":"support_reply","description":"Tone + structure for support","content":"You are helpful...","parameters":{"temperature":0.2}}' | jq
+  -d '{"name":"support_reply","description":"Tone + structure for support","tags":["support","prod"],"content":"You are helpful...","parameters":{"temperature":0.2}}' | jq
 ```
 
 List prompts:
 
 ```bash
 curl -sS 'http://localhost:8000/api/prompts' | jq
+```
+
+List prompts filtered by tag:
+
+```bash
+curl -sS 'http://localhost:8000/api/prompts?tag=support' | jq
 ```
 
 Resolve a prompt by name to its active version (runner read path):

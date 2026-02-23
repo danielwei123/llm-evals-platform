@@ -50,6 +50,9 @@ export default async function PromptsPage({
                 </span>
               </div>
               {p.description ? <div>{p.description}</div> : null}
+              {p.tags?.length ? (
+                <div style={{ color: '#666', fontSize: 12 }}>tags: {p.tags.join(', ')}</div>
+              ) : null}
               <div style={{ color: '#666', fontSize: 12 }}>
                 {p.latest_version?.content
                   ? p.latest_version.content.slice(0, 160)

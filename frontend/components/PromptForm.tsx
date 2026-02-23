@@ -5,6 +5,7 @@ import { useState } from 'react';
 export type PromptFormValue = {
   name: string;
   description: string;
+  tags: string;
   content: string;
   parametersJson: string;
 };
@@ -21,6 +22,7 @@ export function PromptForm({
   const [value, setValue] = useState<PromptFormValue>({
     name: initialValue?.name ?? '',
     description: initialValue?.description ?? '',
+    tags: initialValue?.tags ?? '',
     content: initialValue?.content ?? '',
     parametersJson: initialValue?.parametersJson ?? '{\n  \n}',
   });
@@ -66,6 +68,19 @@ export function PromptForm({
           onChange={(e) => setValue((v) => ({ ...v, description: e.target.value }))}
           style={{ width: '100%', padding: 8 }}
         />
+      </label>
+
+      <label>
+        <div style={{ fontWeight: 600 }}>Tags</div>
+        <input
+          value={value.tags}
+          onChange={(e) => setValue((v) => ({ ...v, tags: e.target.value }))}
+          placeholder="comma-separated (e.g. support, prod)"
+          style={{ width: '100%', padding: 8 }}
+        />
+        <div style={{ color: '#666', fontSize: 12 }}>
+          Stored normalized (lowercase). Leave empty for none.
+        </div>
       </label>
 
       <label>

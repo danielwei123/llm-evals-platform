@@ -17,6 +17,14 @@ function parseParameters(json: string): Record<string, unknown> | null {
   return parsed as Record<string, unknown>;
 }
 
+function parseTags(raw: string): string[] | null {
+  const tags = raw
+    .split(',')
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
+  return tags.length > 0 ? tags : null;
+}
+
 export function NewPromptClient() {
   const router = useRouter();
 
@@ -27,6 +35,7 @@ export function NewPromptClient() {
         const created = await createPrompt({
           name: value.name.trim(),
           description: value.description.trim() || null,
+          tags: parseTags(value.tags),
           content: value.content,
           parameters: parseParameters(value.parametersJson),
         });

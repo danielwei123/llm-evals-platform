@@ -26,6 +26,7 @@ export function PromptDetailClient({ prompt }: { prompt: PromptDetail }) {
   const latest = useMemo(() => prompt.versions?.[0] ?? null, [prompt.versions]);
 
   const [description, setDescription] = useState(prompt.description ?? '');
+  const [tagsText, setTagsText] = useState((prompt.tags ?? []).join(', '));
   const [savingMeta, setSavingMeta] = useState(false);
 
   const [newContent, setNewContent] = useState('');
@@ -59,6 +60,19 @@ export function PromptDetailClient({ prompt }: { prompt: PromptDetail }) {
           />
         </label>
 
+        <label style={{ display: 'grid', gap: 8, marginTop: 12 }}>
+          <div style={{ fontWeight: 600 }}>Tags</div>
+          <input
+            value={tagsText}
+            onChange={(e) => setTagsText(e.target.value)}
+            placeholder="comma-separated (e.g. support, prod)"
+            style={{ width: '100%', padding: 8 }}
+          />
+          <div style={{ color: '#666', fontSize: 12 }}>
+            Stored normalized (lowercase). Leave empty to clear.
+          </div>
+        </label>
+
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
           <button
             disabled={savingMeta}
@@ -66,7 +80,15 @@ export function PromptDetailClient({ prompt }: { prompt: PromptDetail }) {
               setError(null);
               setSavingMeta(true);
               try {
-                await updatePrompt(prompt.id, { description: description || null });
+                const tags = tagsText
+                  .split(',')
+                  .map((t) => t.trim())
+                  .filter((t) => t.length > 0);
+
+                await updatePrompt(prompt.id, {
+                  description: description || null,
+                  tags: tags.length > 0 ? tags : [],
+                });
                 router.refresh();
               } catch (e) {
                 setError(e instanceof Error ? e.message : String(e));
