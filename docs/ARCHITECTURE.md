@@ -59,7 +59,7 @@ flowchart TB
 
 #### UI routes (v0)
 
-- `/prompts` → list prompts (shows latest version snippet)
+- `/prompts` → list prompts (shows latest version snippet; supports `?q=` search + `?tag=` filter)
 - `/prompts/new` → create prompt (creates v1)
 - `/prompts/{prompt_id}` → prompt detail + versions list + create new version + delete prompt
 

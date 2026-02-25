@@ -19,11 +19,13 @@ async function readError(res: Response) {
 
 export async function listPrompts(opts?: {
   q?: string;
+  tag?: string;
   limit?: number;
   offset?: number;
 }): Promise<PromptListItem[]> {
   const params = new URLSearchParams();
   if (opts?.q) params.set('q', opts.q);
+  if (opts?.tag) params.set('tag', opts.tag);
   if (opts?.limit != null) params.set('limit', String(opts.limit));
   if (opts?.offset != null) params.set('offset', String(opts.offset));
 

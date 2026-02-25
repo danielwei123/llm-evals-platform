@@ -4,10 +4,17 @@ import { listPrompts } from '@/lib/promptsApi';
 export default async function PromptsPage({
   searchParams,
 }: {
-  searchParams?: { q?: string };
+  searchParams?: { q?: string; tag?: string };
 }) {
   const q = (searchParams?.q ?? '').trim();
-  const prompts = await listPrompts({ q: q || undefined, limit: 100, offset: 0 });
+  const tag = (searchParams?.tag ?? '').trim().toLowerCase();
+
+  const prompts = await listPrompts({
+    q: q || undefined,
+    tag: tag || undefined,
+    limit: 100,
+    offset: 0,
+  });
 
   return (
     <main style={{ fontFamily: 'system-ui', padding: 24 }}>
@@ -17,7 +24,7 @@ export default async function PromptsPage({
         <a href="/prompts/new">Create a new prompt</a>
       </p>
 
-      <form method="GET" style={{ margin: '16px 0', display: 'flex', gap: 8 }}>
+      <form method="GET" style={{ margin: '16px 0', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <input
           type="text"
           name="q"
@@ -25,10 +32,17 @@ export default async function PromptsPage({
           placeholder="Search prompts…"
           style={{ padding: 8, width: 320, maxWidth: '100%' }}
         />
+        <input
+          type="text"
+          name="tag"
+          defaultValue={tag}
+          placeholder="Filter tag (optional)"
+          style={{ padding: 8, width: 200, maxWidth: '100%' }}
+        />
         <button type="submit" style={{ padding: '8px 12px' }}>
           Search
         </button>
-        {q ? (
+        {q || tag ? (
           <a href="/prompts" style={{ alignSelf: 'center' }}>
             Clear
           </a>
@@ -36,7 +50,11 @@ export default async function PromptsPage({
       </form>
 
       {prompts.length === 0 ? (
-        <p>{q ? 'No prompts match your search.' : 'No prompts yet. Use the API to create one.'}</p>
+        <p>
+          {q || tag
+            ? 'No prompts match your filters.'
+            : 'No prompts yet. Use the API to create one.'}
+        </p>
       ) : (
         <ul>
           {prompts.map((p) => (
@@ -51,15 +69,25 @@ export default async function PromptsPage({
               </div>
               {p.description ? <div>{p.description}</div> : null}
               {p.tags?.length ? (
-                <div style={{ color: '#666', fontSize: 12 }}>tags: {p.tags.join(', ')}</div>
+                <div style={{ color: '#666', fontSize: 12 }}>
+                  tags:{' '}
+                  {p.tags.map((t) => (
+                    <a
+                      key={t}
+                      href={`/prompts?${new URLSearchParams({
+                        ...(q ? { q } : {}),
+                        tag: t,
+                      }).toString()}`}
+                      style={{ marginRight: 8 }}
+                    >
+                      {t}
+                    </a>
+                  ))}
+                </div>
               ) : null}
               <div style={{ color: '#666', fontSize: 12 }}>
-                {p.latest_version?.content
-                  ? p.latest_version.content.slice(0, 160)
-                  : '—'}
-                {p.latest_version?.content && p.latest_version.content.length > 160
-                  ? '…'
-                  : ''}
+                {p.latest_version?.content ? p.latest_version.content.slice(0, 160) : '—'}
+                {p.latest_version?.content && p.latest_version.content.length > 160 ? '…' : ''}
               </div>
             </li>
           ))}

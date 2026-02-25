@@ -142,7 +142,7 @@ npm run dev
 
 UI:
 - http://localhost:3000
-- Prompt Registry list: http://localhost:3000/prompts
+- Prompt Registry list: http://localhost:3000/prompts (supports `?q=` + `?tag=` filters)
 - Prompt detail (versions): http://localhost:3000/prompts/<prompt_id>
 - Create prompt (v0): http://localhost:3000/prompts/new
 - Runs list: http://localhost:3000/runs
