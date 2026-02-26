@@ -97,6 +97,23 @@ def test_prompt_crud_happy_path():
     assert r.json() == []
 
 
+def test_create_prompt_normalizes_name_to_lowercase():
+    _reset_db()
+    client = TestClient(app)
+
+    r = client.post(
+        "/api/prompts",
+        json={
+            "name": "Support/Reply",
+            "description": None,
+            "content": "v1",
+            "parameters": None,
+        },
+    )
+    assert r.status_code == 201, r.text
+    assert r.json()["name"] == "support/reply"
+
+
 def test_create_prompt_duplicate_name_is_409():
     _reset_db()
     client = TestClient(app)
@@ -113,6 +130,22 @@ def test_create_prompt_duplicate_name_is_409():
 
     r2 = client.post("/api/prompts", json=payload)
     assert r2.status_code == 409
+
+
+def test_create_prompt_invalid_name_is_422():
+    _reset_db()
+    client = TestClient(app)
+
+    r = client.post(
+        "/api/prompts",
+        json={
+            "name": "Bad Name With Spaces",
+            "description": None,
+            "content": "v1",
+            "parameters": None,
+        },
+    )
+    assert r.status_code == 422
 
 
 def test_list_prompts_search_and_pagination():
