@@ -63,7 +63,15 @@ flowchart TB
 - `/prompts/new` → create prompt (creates v1)
 - `/prompts/{prompt_id}` → prompt detail + versions list + create new version + delete prompt
 
-We store immutable prompt *versions* under a stable prompt identity:
+We store immutable prompt *versions* under a stable prompt identity.
+
+**Prompt names are normalized to lowercase** on create and must only contain:
+- letters `a-z`
+- numbers `0-9`
+- separators `_ - . /`
+
+This makes prompt names safe to use as stable identifiers in code, config, and runners.
+
 
 ```mermaid
 erDiagram
