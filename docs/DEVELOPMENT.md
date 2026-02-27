@@ -112,12 +112,22 @@ make test
 
 Alternative (local python env + local Postgres):
 
+> Note: the unit tests default to `llm_evals_test` (see `tests/*`), so you either need to
+> create that DB locally **or** override `DATABASE_URL` explicitly.
+
 ```bash
 cd backend
 python -m pip install -e ".[dev]"
-export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
+
+# Option A: create the test DB once, then run tests.
+createdb -h localhost -U llm_evals llm_evals_test || true
+export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals_test'
 ruff check app tests
+alembic upgrade head
 pytest -q
+
+# Option B: point tests at any Postgres DB you control.
+# export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
 ```
 
 ## API conventions
