@@ -4,7 +4,8 @@ import os
 # Ensure tests can point at CI's postgres before importing the app.
 os.environ.setdefault(
     "DATABASE_URL",
-    "postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals_test",
+    # Default matches `infra/docker-compose.yml` (db_test → host port 5433).
+    "postgresql+psycopg://llm_evals:llm_evals@localhost:5433/llm_evals_test",
 )
 
 from fastapi.testclient import TestClient
@@ -16,8 +17,11 @@ from app.main import app
 
 def _reset_db():
     # Keep it simple: truncate known tables (CASCADE handles FK ordering).
+    # Note: prompt tags are normalized into a global `tags` table, so include it.
     with engine.begin() as conn:
-        conn.execute(text("TRUNCATE TABLE runs, prompt_versions, prompts CASCADE"))
+        conn.execute(
+            text("TRUNCATE TABLE runs, prompt_tags, tags, prompt_versions, prompts CASCADE")
+        )
 
 
 def test_prompt_crud_happy_path():
