@@ -15,7 +15,7 @@ Prereqs:
 make up
 ```
 
-Or start DB + backend + frontend all at once:
+Or start DB + backend + frontend + worker all at once:
 
 ```bash
 make dev
@@ -25,6 +25,7 @@ make dev
 - Swagger: http://localhost:8000/docs
 - Health: http://localhost:8000/health
 - Frontend: http://localhost:3000
+- Worker: runs in the background (docker logs via `make logs`)
 
 ### 2) Run migrations
 
@@ -60,6 +61,19 @@ make fe
 
 Frontend:
 - http://localhost:3000
+
+## Worker (local)
+
+The worker is a minimal local loop that claims `queued` runs and marks them succeeded/failed.
+
+Start it via docker-compose:
+
+```bash
+make worker
+```
+
+Configuration:
+- `WORKER_POLL_INTERVAL_S` (default `1.0`)
 
 ## Environment variables
 

@@ -127,8 +127,18 @@ sequenceDiagram
 
 ## Runs (v0 scaffold)
 
-We now have a minimal `runs` table + API to **queue** executions. This is intentionally small
-and will evolve once the Codex runner is wired in.
+We now have a minimal `runs` table + API to **queue** executions.
+
+### Worker (v0 stub)
+
+There is a minimal local worker at `backend/app/worker.py` that:
+
+- claims one `queued` run at a time using `FOR UPDATE SKIP LOCKED`
+- transitions `queued → running → succeeded|failed`
+- writes `started_at` / `finished_at`
+- **executes via a deterministic stub** for now (Codex CLI integration pending)
+
+This is intentionally small and will evolve once the Codex runner is wired in.
 
 ### API (v0 scaffold)
 

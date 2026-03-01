@@ -67,6 +67,18 @@ services:
     command: ["sh", "-lc", "alembic upgrade head && ruff check app tests && pytest -q"]
     profiles: ["test"]
 
+  worker:
+    build:
+      context: ../backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://llm_evals:llm_evals@db:5432/llm_evals}
+      WORKER_POLL_INTERVAL_S: ${WORKER_POLL_INTERVAL_S:-1.0}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "-m", "app.worker"]
+    profiles: ["dev"]
+
   migrate:
     build:
       context: ../backend
