@@ -13,6 +13,7 @@ from sqlalchemy import text
 
 from app.db import engine
 from app.main import app
+from app.worker import run_once
 
 
 def _reset_db():
@@ -20,48 +21,27 @@ def _reset_db():
         conn.execute(text("TRUNCATE TABLE runs, prompt_tags, tags, prompt_versions, prompts CASCADE"))
 
 
-def test_create_and_list_runs():
+def test_worker_processes_a_queued_run_to_succeeded():
     _reset_db()
     client = TestClient(app)
 
-    # Need a prompt to attach the run to.
     r = client.post(
         "/api/prompts",
-        json={
-            "name": "demo",
-            "description": None,
-            "content": "Hello",
-            "parameters": None,
-        },
+        json={"name": "demo", "description": None, "content": "Hello", "parameters": None},
     )
     assert r.status_code == 201, r.text
 
-    r = client.post(
-        "/api/runs",
-        json={"prompt_name": "demo", "input": {"user": "hi"}},
-    )
+    r = client.post("/api/runs", json={"prompt_name": "demo", "input": {"x": 1}})
     assert r.status_code == 201, r.text
-    run = r.json()
-    assert run["status"] == "queued"
-    assert run["input"] == {"user": "hi"}
-    assert run["prompt_version"] == 1
+    run_id = r.json()["id"]
 
-    run_id = run["id"]
-
-    r = client.get("/api/runs")
-    assert r.status_code == 200
-    runs = r.json()
-    assert len(runs) == 1
-    assert runs[0]["id"] == run_id
+    processed = run_once()
+    assert processed == run_id
 
     r = client.get(f"/api/runs/{run_id}")
     assert r.status_code == 200
-    assert r.json()["id"] == run_id
-
-
-def test_create_run_unknown_prompt_is_404():
-    _reset_db()
-    client = TestClient(app)
-
-    r = client.post("/api/runs", json={"prompt_name": "missing", "input": None})
-    assert r.status_code == 404
+    run = r.json()
+    assert run["status"] == "succeeded"
+    assert run["output"] is not None and "stub runner output" in run["output"]
+    assert run["started_at"] is not None
+    assert run["finished_at"] is not None
