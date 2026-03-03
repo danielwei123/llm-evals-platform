@@ -1,13 +1,14 @@
-.PHONY: help up dev down logs migrate fe test
+.PHONY: help up dev down logs migrate fe worker test
 
 help:
 	@echo "Targets:"
 	@echo "  up       - start db + backend (docker)"
-	@echo "  dev      - start db + backend + frontend (docker)"
+	@echo "  dev      - start db + backend + frontend + worker (docker)"
 	@echo "  down     - stop containers"
 	@echo "  logs     - follow logs"
 	@echo "  migrate  - run alembic migrations in a one-shot container"
 	@echo "  fe       - start frontend in docker (optional)"
+	@echo "  worker   - start only the worker (docker, profile dev)"
 
 up:
 	cd infra && docker compose up --build
@@ -26,6 +27,9 @@ migrate:
 
 fe:
 	cd infra && docker compose --profile dev up frontend
+
+worker:
+	cd infra && docker compose --profile dev up worker
 
 test:
 	cd infra && docker compose --profile test run --rm backend_test

@@ -1,5 +1,6 @@
 import { getApiBase } from '@/lib/api';
 import { listPrompts } from '@/lib/promptsApi';
+import { listTags } from '@/lib/tagsApi';
 
 export default async function PromptsPage({
   searchParams,
@@ -9,12 +10,15 @@ export default async function PromptsPage({
   const q = (searchParams?.q ?? '').trim();
   const tag = (searchParams?.tag ?? '').trim().toLowerCase();
 
-  const prompts = await listPrompts({
-    q: q || undefined,
-    tag: tag || undefined,
-    limit: 100,
-    offset: 0,
-  });
+  const [prompts, tags] = await Promise.all([
+    listPrompts({
+      q: q || undefined,
+      tag: tag || undefined,
+      limit: 100,
+      offset: 0,
+    }),
+    listTags({ limit: 20, offset: 0 }),
+  ]);
 
   return (
     <main style={{ fontFamily: 'system-ui', padding: 24 }}>
@@ -23,6 +27,30 @@ export default async function PromptsPage({
       <p>
         <a href="/prompts/new">Create a new prompt</a>
       </p>
+
+      {tags.length ? (
+        <div style={{ margin: '12px 0', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <span style={{ color: '#666', fontSize: 12, alignSelf: 'center' }}>Popular tags:</span>
+          {tags.map((t) => (
+            <a
+              key={t.name}
+              href={`/prompts?${new URLSearchParams({
+                ...(q ? { q } : {}),
+                tag: t.name,
+              }).toString()}`}
+              style={{
+                fontSize: 12,
+                padding: '3px 8px',
+                border: '1px solid #ddd',
+                borderRadius: 999,
+                textDecoration: 'none',
+              }}
+            >
+              {t.name} <span style={{ color: '#666' }}>({t.prompt_count})</span>
+            </a>
+          ))}
+        </div>
+      ) : null}
 
       <form method="GET" style={{ margin: '16px 0', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <input

@@ -98,6 +98,9 @@ make migrate
 
 ### Prompt Registry API (v0)
 
+**Prompt names** are stable identifiers and are normalized to lowercase. Allowed characters:
+`a-z 0-9 _ - . /` (must start with a letter).
+
 Create a prompt:
 
 ```bash

@@ -15,7 +15,7 @@ Prereqs:
 make up
 ```
 
-Or start DB + backend + frontend all at once:
+Or start DB + backend + frontend + worker all at once:
 
 ```bash
 make dev
@@ -25,6 +25,7 @@ make dev
 - Swagger: http://localhost:8000/docs
 - Health: http://localhost:8000/health
 - Frontend: http://localhost:3000
+- Worker: runs in the background (docker logs via `make logs`)
 
 ### 2) Run migrations
 
@@ -60,6 +61,19 @@ make fe
 
 Frontend:
 - http://localhost:3000
+
+## Worker (local)
+
+The worker is a minimal local loop that claims `queued` runs and marks them succeeded/failed.
+
+Start it via docker-compose:
+
+```bash
+make worker
+```
+
+Configuration:
+- `WORKER_POLL_INTERVAL_S` (default `1.0`)
 
 ## Environment variables
 
@@ -112,12 +126,22 @@ make test
 
 Alternative (local python env + local Postgres):
 
+> Note: the unit tests default to `llm_evals_test` on **localhost:5433** (matching the
+> docker-compose `db_test` service). Override `DATABASE_URL` if you use a different setup.
+
 ```bash
 cd backend
 python -m pip install -e ".[dev]"
-export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
+
+# Option A: create the test DB once, then run tests.
+createdb -h localhost -U llm_evals llm_evals_test || true
+export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5433/llm_evals_test'
 ruff check app tests
+alembic upgrade head
 pytest -q
+
+# Option B: point tests at any Postgres DB you control.
+# export DATABASE_URL='postgresql+psycopg://llm_evals:llm_evals@localhost:5432/llm_evals'
 ```
 
 ## API conventions
