@@ -56,6 +56,7 @@ flowchart TB
 - `POST /api/prompts/{prompt_id}/versions` → create new version (allocates next sequential version; DB-enforced uniqueness with retry on concurrent writes)
 - `POST /api/prompts/{prompt_id}/activate` → set the prompt’s `active_version` (promotion/rollback)
 - `DELETE /api/prompts/{prompt_id}` → delete prompt (cascades versions)
+- `GET /api/tags?q=&limit=&offset=` → list tags + `prompt_count` (UI helper; used for “popular tags” chips)
 
 #### UI routes (v0)
 

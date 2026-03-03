@@ -7,6 +7,12 @@ export type PromptVersion = {
   created_at: string;
 };
 
+export type TagListItem = {
+  name: string;
+  created_at: string;
+  prompt_count: number;
+};
+
 export type RunStatus = 'queued' | 'running' | 'succeeded' | 'failed';
 
 export type Run = {
